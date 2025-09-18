@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscribe Pro</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      text-align: center;
+    }
+    h1 { margin-bottom: 20px; }
+    button {
+      background: #ff9800;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      color: #fff;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    button:hover { background: #e68900; }
+    .box {
+      background: rgba(0,0,0,0.3);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 18px;
+      display: none;
+    }
+    .success { border: 2px solid #4caf50; }
+    .failed { border: 2px solid #f44336; }
+    .info   { border: 2px solid #2196f3; }
+  </style>
+</head>
+<body>
+
+  <h1>Subscribe Pro</h1>
+  <button id="payBtn">Subscribe Pro</button>
+
+  <div id="statusBox" class="box info"></div>
+
+  <div id="successBox" class="box success">
+    ✅ Payment Successful!<br>
+    <span id="successDetails"></span>
+  </div>
+
+  <div id="failedBox" class="box failed">
+    ❌ Payment Failed or Cancelled.<br>
+    <button onclick="retryPayment()">Retry Payment</button>
+  </div>
+
+  <script>
+    const payBtn = document.getElementById("payBtn");
+    const statusBox = document.getElementById("statusBox");
+    const successBox = document.getElementById("successBox");
+    const failedBox = document.getElementById("failedBox");
+    const successDetails = document.getElementById("successDetails");
+
+    const SCRIPT_URL = "YOUR_SCRIPT_URL_HERE"; // <-- Replace with your Apps Script URL
+
+    // Subscribe button → Razorpay link
+    payBtn.addEventListener("click", () => {
+      const mobile = localStorage.getItem("mobileNo") || "Unknown";
+      window.location.href = "https://rzp.io/rzp/vaEyCKyJ?mobile=" + mobile;
+    });
+
+    // Retry button
+    function retryPayment() {
+      const mobile = localStorage.getItem("mobileNo") || "Unknown";
+      window.location.href = "https://rzp.io/rzp/vaEyCKyJ?mobile=" + mobile;
+    }
+
+    // On page load
+    window.onload = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const status = urlParams.get("payment");
+
+      // Handle payment redirect
+      if (status === "success") {
+        let mobile = localStorage.getItem("mobileNo") || "Unknown";
+        let amount = "199";
+        let date = new Date().toLocaleString();
+
+        successBox.style.display = "block";
+        successDetails.innerText = `Mobile: ${mobile}, Amount: ₹${amount}, Date: ${date}`;
+      } 
+      else if (status === "failed") {
+        failedBox.style.display = "block";
+      }
+
+      // Always check subscription validity
+      const mobile = localStorage.getItem("mobileNo");
+      if (mobile) {
+        fetch(SCRIPT_URL + "?action=check&mobile=" + mobile)
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === "Active") {
+              statusBox.style.display = "block";
+              statusBox.innerHTML = `✅ Subscription Active until <b>${new Date(data.expiry).toLocaleDateString()}</b>`;
+              payBtn.style.display = "none"; // hide subscribe button
+            } 
+            else if (data.status === "Expired") {
+              statusBox.style.display = "block";
+              statusBox.innerHTML = `❌ Subscription Expired on <b>${new Date(data.expiry).toLocaleDateString()}</b>. Please renew.`;
+              payBtn.style.display = "inline-block"; // keep button visible
+            } 
+            else {
+              statusBox.style.display = "block";
+              statusBox.innerHTML = "⚠️ No subscription found. Please subscribe.";
+              payBtn.style.display = "inline-block";
+            }
+          })
+          .catch(err => {
+            console.error("Error:", err);
+            statusBox.style.display = "block";
+            statusBox.innerHTML = "⚠️ Unable to check subscription. Please try again later.";
+          });
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0; padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      background: linear-gradient(270deg, #43cea2, #185a9d, #ff512f, #dd2476);
+      background-size: 800% 800%;
+      animation: gradientShift 18s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    header { margin: 15px 0; text-align: center; }
+    header h1 { margin: 0; font-size: 1.6rem; }
+    #timer {
+      font-weight: bold;
+      margin: 8px 0;
+      background: rgba(0,0,0,0.3);
+      padding: 6px 14px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    /* Loader */
+    #loader {
+      margin-top: 60px;
+      width: 60px; height: 60px;
+      border: 6px solid rgba(255,255,255,0.3);
+      border-top: 6px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Indicator Blocks */
+    #indicator {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 15px;
+      max-width: 700px;
+    }
+    .indicator-block {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.25);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .answered { background: rgba(0,200,0,0.7) !important; }
+    .skipped { background: rgba(165,42,42,0.7) !important; }
+    .current { border: 2px solid #fff; }
+
+    /* Quiz Container */
+    #quizContainer {
+      width: 95%;
+      max-width: 700px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      margin: 15px auto;
+      text-align: left;
+      display: none;
+    }
+    #questionText {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .options label {
+      background: rgba(0,0,0,0.2);
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .options input { margin-right: 8px; }
+
+    .clear-btn {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      background: #ff7043;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .clear-btn:hover { background: #ff5722; }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 22px;
+      margin: 10px 6px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+    }
+    .btn:hover { transform: scale(1.05); }
+    .next { background: #4caf50; color: white; }
+    .prev { background: #0288d1; color: white; }
+    .quit { background: #e53935; color: white; }
+    .submit { background: #ff9800; color: white; }
+
+    /* Result Screen */
+    #resultScreen {
+      display: none;
+      width: 95%;
+      max-width: 750px;
+      background: rgba(255,255,255,0.2);
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+    #resultSummary {
+      font-size: 1.2rem;
+      margin: 15px 0;
+    }
+    #answersReview {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .review-block {
+      margin: 12px 0;
+      padding: 15px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .review-block:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+    .correct { background: rgba(0,200,0,0.5); }
+    .wrong { background: rgba(200,0,0,0.6); }
+    .right-answer { background: rgba(0,200,0,0.4); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="quizTitle">Loading...</h1>
+    <div id="timer">⏳ 00:00</div>
+  </header>
+
+  <div id="loader"></div>
+
+  <div id="indicator"></div>
+
+  <div id="quizContainer">
+    <p id="questionText"></p>
+    <div id="options" class="options"></div>
+    <div style="text-align:center;">
+      <button class="clear-btn" onclick="clearResponse(currentIndex)">Clear Response</button>
+      <button class="btn prev" onclick="prevQuestion()">Previous</button>
+      <button class="btn next" onclick="nextQuestion()">Next</button>
+      <button class="btn quit" onclick="quitExam()">Quit</button>
+      <button class="btn submit" onclick="submitQuiz()">Submit</button>
+    </div>
+  </div>
+
+  <div id="resultScreen">
+    <h2>📊 Exam Results</h2>
+    <div id="resultSummary"></div>
+    <button class="btn submit" onclick="showAnswers()">Show Correct Answers</button>
+    <button class="btn quit" onclick="window.location.href='ipop1.html'">Back to Chapters</button>
+    <div id="answersReview"></div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzSXIgtASJA6m7mpHernq0JxDtSre7jggnEXfPpY5sm3syGVTvPpO1pz79YWv9y_O5k/exec";
+    const RESULT_URL = "https://script.google.com/macros/s/AKfycbzSXIgtASJA6m7mpHernq0JxDtSre7jggnEXfPpY5sm3syGVTvPpO1pz79YWv9y_O5k/exec";
+
+    const quizTitle = document.getElementById("quizTitle");
+    const questionText = document.getElementById("questionText");
+    const optionsDiv = document.getElementById("options");
+    const indicatorDiv = document.getElementById("indicator");
+    const quizContainer = document.getElementById("quizContainer");
+    const loader = document.getElementById("loader");
+    const timerDiv = document.getElementById("timer");
+
+    const resultScreen = document.getElementById("resultScreen");
+    const resultSummary = document.getElementById("resultSummary");
+    const answersReview = document.getElementById("answersReview");
+
+    let currentExam = "";
+    let questions = [];
+    let userAnswers = {};
+    let currentIndex = 0;
+    let timer, totalTime;
+    let fiveMinAlertShown = false;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sheetName = urlParams.get("sheet");
+
+    window.onload = async () => {
+      currentExam = sheetName;
+      quizTitle.innerText = "Exam: " + sheetName;
+
+      try {
+        let res = await fetch(API_URL + "?sheet=" + encodeURIComponent(sheetName));
+        questions = await res.json();
+
+        loader.style.display = "none";
+        quizContainer.style.display = "block";
+
+        totalTime = Math.floor(questions.length * 1.5 * 60);
+        startTimer();
+
+        questions.forEach((_, i) => {
+          let block = document.createElement("div");
+          block.className = "indicator-block";
+          block.innerText = i+1;
+          block.onclick = () => goToQuestion(i);
+          indicatorDiv.appendChild(block);
+        });
+
+        loadQuestion(0);
+      } catch (err) {
+        loader.innerText = "⚠️ Error loading quiz.";
+        console.error("Error loading quiz", err);
+      }
+    };
+
+    function startTimer() {
+      timer = setInterval(() => {
+        if (totalTime <= 0) {
+          clearInterval(timer);
+          submitQuiz();
+        }
+        if (totalTime === 300 && !fiveMinAlertShown) {
+          alert("⚠️ Only 5 minutes remaining!");
+          fiveMinAlertShown = true;
+        }
+        let min = Math.floor(totalTime / 60);
+        let sec = totalTime % 60;
+        timerDiv.innerText = `⏳ ${min}:${sec.toString().padStart(2,"0")}`;
+        totalTime--;
+      }, 1000);
+    }
+
+    function loadQuestion(i) {
+      currentIndex = i;
+      document.querySelectorAll(".indicator-block").forEach((b, idx) => {
+        b.classList.remove("current");
+        if (idx === i) b.classList.add("current");
+      });
+
+      let q = questions[i];
+      questionText.innerText = (i+1) + ". " + q.question;
+
+      optionsDiv.innerHTML = "";
+      q.options.forEach(opt => {
+        let label = document.createElement("label");
+        let radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "q" + i;
+        radio.value = opt;
+        if (userAnswers[i] === opt) radio.checked = true;
+        radio.onchange = () => {
+          userAnswers[i] = opt;
+          updateIndicator(i, "answered");
+        };
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(opt));
+        optionsDiv.appendChild(label);
+      });
+    }
+
+    function clearResponse(i) {
+      userAnswers[i] = null;
+      document.querySelectorAll(`input[name="q${i}"]`).forEach(r => r.checked = false);
+      updateIndicator(i, "skipped");
+    }
+
+    function nextQuestion() { if (currentIndex < questions.length - 1) loadQuestion(currentIndex + 1); }
+    function prevQuestion() { if (currentIndex > 0) loadQuestion(currentIndex - 1); }
+    function goToQuestion(i) { loadQuestion(i); }
+
+    function updateIndicator(index, status) {
+      let blocks = document.querySelectorAll(".indicator-block");
+      blocks[index].classList.remove("answered","skipped");
+      blocks[index].classList.add(status);
+    }
+
+    function quitExam() {
+      if (confirm("Are you sure you want to quit? Progress will be lost.")) {
+        window.location.href = "ipop1.html";
+      }
+    }
+
+    async function submitQuiz() {
+      clearInterval(timer);
+      loader.style.display = "block";
+      quizContainer.style.display = "none";
+
+      let marks = 0, attempts = 0;
+      questions.forEach((q, i) => {
+        if (userAnswers[i]) {
+          attempts++;
+          if (userAnswers[i] === q.correct) marks++;
+          updateIndicator(i,"answered");
+        } else {
+          updateIndicator(i,"skipped");
+        }
+      });
+
+      let mobile = localStorage.getItem("mobile") || "Unknown";
+      let date = new Date().toLocaleString("en-GB");
+      let data = { mobile, exam: currentExam, marks, date };
+
+      try {
+        await fetch(RESULT_URL, { method: "POST", body: JSON.stringify(data) });
+      } catch(e) { console.error(e); }
+
+      loader.style.display = "none";
+      resultScreen.style.display = "block";
+      resultSummary.innerText = `✅ Correct: ${marks} / ${questions.length} | 🖊 Attempted: ${attempts}`;
+    }
+
+    function showAnswers() {
+      answersReview.innerHTML = "";
+      questions.forEach((q,i) => {
+        let div = document.createElement("div");
+        div.className = "review-block";
+
+        let qText = document.createElement("p");
+        qText.innerHTML = `<b>Q${i+1}:</b> ${q.question}`;
+        div.appendChild(qText);
+
+        let userAns = userAnswers[i] || "Skipped";
+
+        if (userAns === q.correct) {
+          let p = document.createElement("p");
+          p.className = "correct";
+          p.style.padding = "8px 12px";
+          p.style.borderRadius = "8px";
+          p.innerHTML = `✅ Correct! You answered: <b>${userAns}</b>`;
+          div.appendChild(p);
+        } else if (userAns !== "Skipped" && userAns !== q.correct) {
+          let p1 = document.createElement("p");
+          p1.className = "wrong";
+          p1.style.padding = "8px 12px";
+          p1.style.borderRadius = "8px";
+          p1.innerHTML = `❌ Your Answer: <b>${userAns}</b>`;
+          div.appendChild(p1);
+
+          let p2 = document.createElement("p");
+          p2.className = "right-answer";
+          p2.style.padding = "8px 12px";
+          p2.style.borderRadius = "8px";
+          p2.innerHTML = `✔ Correct Answer: <b>${q.correct}</b>`;
+          div.appendChild(p2);
+        } else if (userAns === "Skipped") {
+          let p = document.createElement("p");
+          p.className = "right-answer";
+          p.style.padding = "8px 12px";
+          p.style.borderRadius = "8px";
+          p.innerHTML = `✔ Correct Answer: <b>${q.correct}</b> (You Skipped)`;
+          div.appendChild(p);
+        }
+
+        answersReview.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>

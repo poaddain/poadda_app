@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POAdda Registration</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(-45deg, #6a11cb, #2575fc, #ff7e5f, #feb47b);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      color: #000;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      animation: rise 20s infinite ease-in;
+      backdrop-filter: blur(6px);
+    }
+    @keyframes rise {
+      0% { transform: translateY(0) scale(1); opacity: 0.7; }
+      100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+    }
+
+    h2, h4 {
+      text-align: center;
+      margin: 0;
+    }
+    h2 { font-size: 26px; font-weight: bold; color: #fff; }
+    h4 { font-size: 15px; color: #eee; margin-bottom: 20px; }
+
+    form {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.3);
+      z-index: 1;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 12px;
+      display: block;
+      color: #fff;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      outline: none;
+    }
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    option { color: #000; }
+    input:focus, select:focus {
+      box-shadow: 0 0 8px rgba(255,255,255,0.6);
+    }
+
+    .note {
+      font-size: 12px;
+      color: #f1f1f1;
+      margin-top: 4px;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 22px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+    button:hover { transform: scale(1.05); }
+    button.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+    button.loading::after {
+      content: "  Saving...";
+      font-weight: normal;
+      font-size: 14px;
+      animation: dots 1.5s infinite;
+    }
+    @keyframes dots {
+      0% { content: "  Saving"; }
+      33% { content: "  Saving."; }
+      66% { content: "  Saving.."; }
+      100% { content: "  Saving..."; }
+    }
+
+    .back-btn {
+      margin-top: 15px;
+      text-align: center;
+      display: block;
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .back-btn:hover { color: #ffd369; }
+
+    .date {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+      z-index: 1;
+    }
+
+    .notifier {
+      position: fixed;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-weight: bold;
+      opacity: 0;
+      transition: all 0.6s ease;
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+    }
+    .notifier.show { top: 20px; opacity: 1; }
+    .notifier.success { background: rgba(40,167,69,0.9); }
+    .notifier.warning { background: rgba(255,193,7,0.9); color: #000; }
+
+    @media(max-width:480px) {
+      form { padding: 20px; border-radius: 16px; }
+      h2 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating bubbles -->
+  <div class="bubble" style="left: 10%; animation-duration: 18s;"></div>
+  <div class="bubble" style="left: 30%; animation-duration: 22s;"></div>
+  <div class="bubble" style="left: 50%; animation-duration: 25s;"></div>
+  <div class="bubble" style="left: 70%; animation-duration: 20s;"></div>
+  <div class="bubble" style="left: 85%; animation-duration: 28s;"></div>
+
+  <h2><i class="fa-solid fa-user-plus"></i> POAdda Registration</h2>
+  <h4>Today's practice makes you win</h4>
+
+  <form id="signupForm">
+    <label><i class="fa-solid fa-user"></i> Name</label>
+    <input type="text" name="name" placeholder="Enter your name" required>
+
+    <label><i class="fa-solid fa-phone"></i> Mobile No. (User Id)</label>
+    <input type="text" name="mobile" maxlength="10" pattern="^[0-9]{10}$" placeholder="10 digit mobile number" required>
+
+    <label><i class="fa-solid fa-lock"></i> Create Password</label>
+    <div class="password-wrapper">
+      <input type="password" id="password" name="password" minlength="6" placeholder="Enter password" required>
+      <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password')"></i>
+    </div>
+    <div class="note">Password must be minimum 6 characters with both <b>Numbers</b> & <b>Alphabets</b>.</div>
+
+    <label><i class="fa-solid fa-lock-open"></i> Confirm Password</label>
+    <input type="text" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required>
+
+    <label><i class="fa-solid fa-graduation-cap"></i> Exam</label>
+    <select name="exam" required>
+      <option value="">Select your exam</option>
+      <option value="IPO">IPO</option>
+      <option value="AAO">AAO</option>
+      <option value="PA/SA">PA/SA</option>
+    </select>
+
+    <label><i class="fa-solid fa-ticket"></i> Subscription Type</label>
+    <select name="subscription" required>
+      <option value="Practice Set Only">Practice Set Only</option>
+    </select>
+
+    <button type="submit" id="submitBtn"><i class="fa-solid fa-paper-plane"></i> Submit</button>
+    <a href="user.html" class="back-btn">⬅ Back</a>
+  </form>
+
+  <div class="date">Date: <span id="currentDate"></span></div>
+  <div id="notifier" class="notifier"></div>
+
+  <script>
+    document.getElementById("currentDate").innerText = new Date().toLocaleDateString();
+
+    const form = document.getElementById("signupForm");
+    const notifier = document.getElementById("notifier");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function showNotifier(message, type = "success", redirect = false) {
+      notifier.textContent = message;
+      notifier.className = "notifier show " + type;
+      setTimeout(() => {
+        notifier.classList.remove("show");
+        if (redirect) {
+          window.location.href = "user.html";
+        }
+      }, 2000);
+    }
+
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      if (data.password !== data.confirmPassword) {
+        showNotifier("Password & Confirm Password will be same ❌", "warning");
+        return;
+      }
+
+      submitBtn.classList.add("loading");
+
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbxcp5wXF3RnA5pv0FTlX7Bkad6s4xmXuLY4WhQk3xz7WJhM4-2Mpzi-rygF6TLoOEos/exec", {
+          method: "POST",
+          body: new URLSearchParams({...data, action: "signup"})
+        });
+
+        const result = await res.json();
+
+        if (result.status === "success") {
+          showNotifier("Successfully Registered ✅", "success", true);
+          form.reset();
+        } else if (result.status === "duplicate") {
+          showNotifier("This mobile is already registered for this exam ⚠️", "warning");
+        } else {
+          showNotifier("Something went wrong ❌", "warning");
+        }
+      } catch (err) {
+        console.error(err);
+        showNotifier("Network error. Please try again.", "warning");
+      } finally {
+        submitBtn.classList.remove("loading");
+      }
+    });
+  </script>
+</body>
+</html>

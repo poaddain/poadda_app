@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+      --valid: #006400;   /* dark green */
+      --expired: red;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      background: linear-gradient(-45deg, #6a11cb, #2575fc, #ff7e5f, #feb47b);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    img.logo {
+      width: 120px;
+      margin: 20px auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 10px 0 20px;
+      font-size: 1.8rem;
+    }
+
+    label {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 20px;
+      display: block;
+    }
+
+    input[type="text"] {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+      width: 250px;
+      font-weight: bold;
+    }
+
+    .btn-container {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.28);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      transition: transform .2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Logo -->
+  <img src="logo.png" alt="Logo" class="logo">
+
+  <!-- Welcome message -->
+  <h1 id="welcomeMsg">Welcome!</h1>
+
+  <!-- Subscription field -->
+  <label for="expiryBox">Your Subscription Valid till:</label>
+  <input type="text" id="expiryBox" readonly value="Loading...">
+
+  <!-- Buttons -->
+  <div class="btn-container">
+    <button onclick="window.location.href='ipo.html'">
+      <i class="fa-solid fa-arrow-right-to-bracket"></i> Go to Your Zone
+    </button>
+    <button id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i> Log out
+    </button>
+  </div>
+
+  <script>
+    window.onload = async function () {
+      const mobile = localStorage.getItem("mobile");
+      const welcomeMsg = document.getElementById("welcomeMsg");
+      const expiryBox = document.getElementById("expiryBox");
+
+      if (mobile) {
+        welcomeMsg.innerText = "Welcome, " + mobile + " 👋";
+      } else {
+        welcomeMsg.innerText = "Welcome!";
+        expiryBox.value = "Not logged in";
+      }
+
+      // SUBSCRIPTION fetch
+      try {
+        const subscriptionURL = "https://script.google.com/macros/s/AKfycbzNWVx_9jE8M0f4PqDUDsOEGLT_JG0UXzKOu7RkA5tP5lv1K14_Fs4vf5w0mOmm7BA/exec";
+        const res = await fetch(subscriptionURL);
+        if (!res.ok) throw new Error('Subscription fetch failed: ' + res.status);
+        const json = await res.json();
+
+        let userRow = json.find(r => String(r[0]).trim() === String(mobile).trim());
+
+        if (userRow && userRow[3]) {
+          const expiryDate = new Date(userRow[3]);
+          if (!isNaN(expiryDate.valueOf())) {
+            const day = ("0" + expiryDate.getDate()).slice(-2);
+            const month = ("0" + (expiryDate.getMonth() + 1)).slice(-2);
+            const year = expiryDate.getFullYear();
+            const formattedDate = `${day}-${month}-${year}`;
+            const today = new Date();
+            if (expiryDate >= today) {
+              expiryBox.value = formattedDate;
+              expiryBox.style.color = "var(--valid)";
+            } else {
+              expiryBox.value = "Expired on: " + formattedDate;
+              expiryBox.style.color = "var(--expired)";
+            }
+          } else {
+            expiryBox.value = "No valid expiry date";
+            expiryBox.style.color = "var(--expired)";
+          }
+        } else {
+          expiryBox.value = "No subscription found";
+          expiryBox.style.color = "var(--expired)";
+        }
+      } catch (e) {
+        console.error("Subscription fetch error:", e);
+        expiryBox.value = "Error loading subscription";
+        expiryBox.style.color = "var(--expired)";
+      }
+
+      // Logout button handler
+      const logoutBtn = document.getElementById("logoutBtn");
+      logoutBtn.addEventListener("click", () => {
+        const confirmLogout = confirm("⚠️ Do you really want to log out?");
+        if (confirmLogout) {
+          localStorage.removeItem("mobile");
+          window.location.href = "user.html";
+        }
+      });
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam 1</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #mobileDisplay { font-weight: bold; margin-bottom: 20px; }
+    button { padding: 10px 20px; font-size: 1rem; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div id="mobileDisplay"></div>
+  <h1>Exam 1</h1>
+
+  <p>Sample Question: 2 + 2 = ?</p>
+  <input type="number" id="answer" placeholder="Enter answer">
+
+  <br>
+  <button onclick="submitExam()">Submit Exam</button>
+
+  <script>
+    const mobile = localStorage.getItem("mobile");
+    const examName = localStorage.getItem("examName") || "Exam 1";
+    document.getElementById("mobileDisplay").innerText = "Mobile: " + mobile;
+
+    async function submitExam() {
+      const ans = document.getElementById("answer").value.trim();
+      let score = (ans === "4") ? 1 : 0; // demo scoring
+
+      const record = {
+        mobile: mobile,
+        exam: examName,
+        score: score,
+        date: new Date().toLocaleString()
+      };
+
+      try {
+        await fetch("https://script.google.com/macros/s/AKfycbzih7TXjQp818GXuwSqKv7w-Ye1Bg19AqhXJvP8_Up3eH3F1C5_4YGZu52GZO-F1zlGDQ/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(record)
+        });
+        alert("Exam submitted successfully!");
+        window.location.href = "exam.html";
+      } catch (err) {
+        alert("Error submitting exam.");
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

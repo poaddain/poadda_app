@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IT Act 2000 Quiz</title>
+  <style>
+    /* === Same styling as before (trimmed for brevity) === */
+    :root{--accent:#5dd3f3;--accent-2:#6a8cff;--green:#4ef08a;--red:#ff5c5c;--card-bg:rgba(255,255,255,0.04);}
+    body{margin:0;font-family:Inter,sans-serif;color:#e6eef8;background:#0f1724;}
+    body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(120deg,#08122b,#0e1b33,#0e2241,#11243b,#08122b);animation:bgShift 12s ease-in-out infinite alternate;}
+    @keyframes bgShift{0%{filter:hue-rotate(0deg)}50%{filter:hue-rotate(15deg)}100%{filter:hue-rotate(-10deg)}}
+    .app{max-width:900px;margin:20px auto;padding:15px;}
+    .card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:18px;backdrop-filter:blur(12px);margin-bottom:15px;}
+    .card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,0.35);transition:transform .25s,box-shadow .25s;}
+    .question-text{font-size:1.1rem;font-weight:600;}
+    .option{padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);margin:8px 0;cursor:pointer;transition:0.25s;}
+    .option:hover{background:rgba(255,255,255,0.06);transform:scale(1.01);}
+    .option.selected{background:linear-gradient(90deg,#7bdcff,#6a8cff);color:#052033;}
+    .buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+    button{border:0;padding:10px 16px;border-radius:12px;font-weight:700;cursor:pointer;transition:0.18s;}
+    .btn-prev{background:#444;color:#fff;}
+    .btn-next{background:linear-gradient(90deg,#7bdcff,#6a8cff);}
+    .btn-submit{background:linear-gradient(90deg,#6ef184,#2ecc71);}
+    .btn-quit{background:linear-gradient(90deg,#ff9a9e,#ff6f6f);}
+    .progress-bar{height:10px;background:rgba(255,255,255,0.1);border-radius:6px;overflow:hidden;}
+    .progress{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+    .question-indicators{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+    .indicator{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);cursor:pointer;}
+    .indicator.current{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#052033;}
+    .indicator.answered{background:#00ff66 !important;color:#032015 !important;font-weight:700;}
+    #result-page h2{text-align:center;color:var(--accent);margin:0 0 8px 0;}
+    .score-card{text-align:center;font-size:1.1rem;background:rgba(255,255,255,0.06);padding:18px;border-radius:16px;backdrop-filter:blur(14px);box-shadow:0 8px 30px rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.12);}
+    #answers-container{display:flex;flex-direction:column;gap:12px;}
+    .answer-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;transform:translateY(10px);animation:fadeInUp 0.45s forwards;}
+    @keyframes fadeInUp{to{opacity:1;transform:translateY(0);}}
+    .q-head{font-weight:700;color:#dfefff;}
+    .correct-answer{color:var(--green);font-weight:700;}
+    .user-correct{color:var(--green);font-weight:700;}
+    .user-wrong{color:var(--red);font-weight:700;}
+    .answer-card.correct-card{border-left:4px solid var(--green);}
+    .answer-card.wrong-card{border-left:4px solid var(--red);}
+    .result-buttons{display:flex;gap:10px;margin-top:15px;justify-content:center;flex-wrap:wrap;}
+    .go-chapters{background:linear-gradient(90deg,#5dd3f3,#6a8cff);border-radius:12px;padding:10px 16px;border:0;font-weight:700;cursor:pointer;}
+    .retry-btn{background:linear-gradient(90deg,#6ef184,#2ecc71);border-radius:12px;padding:10px 16px;border:0;font-weight:700;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Quiz Page -->
+    <div id="quiz-page">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-weight:700;">IT Act 2000 Quiz</div>
+        <div class="timer" id="timer">Time: 00:00</div>
+      </header>
+      <div class="progress-bar"><div class="progress" id="progress-bar"></div></div>
+      <div class="question-indicators" id="question-indicators"></div>
+      <div class="card">
+        <div class="question-text" id="question-text">Loading...</div>
+        <div id="options-container"></div>
+        <div class="buttons">
+          <button class="btn-prev" id="prev-btn">Previous</button>
+          <button class="btn-next" id="next-btn">Next</button>
+          <button class="btn-submit" id="submit-btn">Submit</button>
+          <button class="btn-quit" id="quit-btn">Quit</button>
+        </div>
+      </div>
+    </div>
+    <!-- Result Page -->
+    <div id="result-page" style="display:none;">
+      <div class="card score-card">
+        <h2>🎉 Quiz Completed!</h2>
+        <div id="score"></div>
+        <div id="percentage"></div>
+        <div id="accuracy"></div>
+      </div>
+      <div class="card" id="answers-container"></div>
+      <div class="result-buttons">
+        <button class="retry-btn" onclick="restartQuiz()">Retry</button>
+        <button class="go-chapters" onclick="location.href='chapters.html'">Go to Chapters</button>
+      </div>
+    </div>
+  </div>
+<script>
+  const questions = [
+    {"question":"Information Technology Act, 2000 was published by which Ministry of Govt of India?","options":["Ministry of Communication","Ministry of Law,Justice & Company Affairs","Ministry of Technology","Ministry of Finance"],"correct":1},
+    {"question":"When the said law was come into force in India","options":["1st January 2000","17th January 2000","17th October 2000","1st October 2000"],"correct":2},
+    {"question":"Which key is used to create Digital Signature?","options":["Public Key","Private Key","Both of them","None of them"],"correct":2},
+    {"question":"Limit of fees for application for license to issue Digital Signature Certificate","options":["Rs. 20000/-","Rs. 25000/-","Rs. 30000/-","Rs. 50000/-"],"correct":1},
+    {"question":"Time limit for renewal of license","options":["more than 45 days after expiry","less than 45 days before expiry","not less than 45 days before expiry","30 days after expiry"],"correct":2},
+    {"question":"Penalty for damage to computer, computer system","options":["Rs. 1 lakh","Rs. 5 lakh","Rs. 10 lakh","Rs. 15 lakh"],"correct":2},
+    {"question":"Who appoints the Controller of Certifying Authorities?","options":["Central Govt","State Govt","Parliament","Supreme Court"],"correct":0},
+    {"question":"Who is the adjudicating officer under IT Act?","options":["Controller of Certifying Authorities","Deputy Secretary","Secretary of Dept of IT","Any officer not below rank of Director"],"correct":3},
+    {"question":"Time limit for appeal to Cyber Appellate Tribunal","options":["30 days","45 days","60 days","90 days"],"correct":0}
+  ];
+  const totalQuestions = questions.length;
+  const totalTime = totalQuestions * 90;
+  let currentQuestion=0,userAnswers=Array(totalQuestions).fill(null),timeLeft=totalTime,timerInterval;
+  const quizPage=document.getElementById('quiz-page'),resultPage=document.getElementById('result-page'),questionText=document.getElementById('question-text'),optionsContainer=document.getElementById('options-container'),indicators=document.getElementById('question-indicators'),progressBar=document.getElementById('progress-bar'),timerElement=document.getElementById('timer'),scoreElement=document.getElementById('score'),percentageElement=document.getElementById('percentage'),accuracyElement=document.getElementById('accuracy'),answersContainer=document.getElementById('answers-container'),prevBtn=document.getElementById('prev-btn'),nextBtn=document.getElementById('next-btn'),submitBtn=document.getElementById('submit-btn'),quitBtn=document.getElementById('quit-btn');
+  function initQuiz(){indicators.innerHTML="";for(let i=0;i<totalQuestions;i++){const d=document.createElement('div');d.className="indicator";d.textContent=i+1;d.onclick=()=>navigateToQuestion(i);indicators.appendChild(d);}startTimer();loadQuestion(currentQuestion);}
+  function startTimer(){updateTimerDisplay();timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);submitQuiz();}},1000);}
+  function updateTimerDisplay(){const m=Math.floor(timeLeft/60),s=timeLeft%60;timerElement.textContent=`Time: ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;}
+  function loadQuestion(i){document.querySelectorAll('.indicator').forEach((el,idx)=>{el.classList.remove('current');if(idx===i)el.classList.add('current');if(userAnswers[idx]!=null)el.classList.add('answered');});progressBar.style.width=((i+1)/totalQuestions*100)+"%";questionText.textContent=questions[i].question;optionsContainer.innerHTML="";questions[i].options.forEach((opt,j)=>{const div=document.createElement('div');div.className="option";div.textContent=opt;if(userAnswers[i]===j)div.classList.add('selected');div.onclick=()=>selectOption(j);optionsContainer.appendChild(div);});prevBtn.disabled=i===0;nextBtn.disabled=i===totalQuestions-1;}
+  function selectOption(idx){userAnswers[currentQuestion]=idx;loadQuestion(currentQuestion);}
+  function navigateToQuestion(i){currentQuestion=i;loadQuestion(currentQuestion);}
+  nextBtn.onclick=()=>{if(currentQuestion<totalQuestions-1){currentQuestion++;loadQuestion(currentQuestion);}};
+  prevBtn.onclick=()=>{if(currentQuestion>0){currentQuestion--;loadQuestion(currentQuestion);}};
+  submitBtn.onclick=submitQuiz;
+  function submitQuiz(){clearInterval(timerInterval);let correct=0;userAnswers.forEach((ans,i)=>{if(ans===questions[i].correct)correct++;});const percent=((correct/totalQuestions)*100).toFixed(1);const answered=totalQuestions-userAnswers.filter(a=>a==null).length;const acc=answered>0?((correct/answered)*100).toFixed(1):0;scoreElement.textContent=`Score: ${correct}/${totalQuestions}`;percentageElement.textContent=`Percentage: ${percent}%`;accuracyElement.textContent=`Accuracy: ${acc}%`;answersContainer.innerHTML="";questions.forEach((q,i)=>{const card=document.createElement('div');card.className="answer-card";const userIdx=userAnswers[i];const userText=(userIdx!=null)?q.options[userIdx]:"Skipped";const correctText=q.options[q.correct];const userIsCorrect=(userIdx===q.correct);card.classList.add(userIsCorrect?'correct-card':'wrong-card');const userIcon=userIsCorrect?'✔':'✎';const userClass=userIsCorrect?'user-correct':'user-wrong';card.innerHTML=`<div class="q-head"><b>Q${i+1}:</b> ${q.question}</div><div><div class="correct-answer">✔ Correct: ${correctText}</div><div class="${userClass}">${userIcon} Your: ${userText}</div></div>`;answersContainer.appendChild(card);});quizPage.style.display="none";resultPage.style.display="block";}
+  function restartQuiz(){clearInterval(timerInterval);currentQuestion=0;userAnswers=Array(totalQuestions).fill(null);timeLeft=totalTime;resultPage.style.display="none";quizPage.style.display="block";initQuiz();}
+  quitBtn.onclick=()=>{if(confirm("Are you sure you want to quit the quiz?")){location.href='chapters.html';}};
+  window.onload=initQuiz;
+</script>
+</body>
+</html>

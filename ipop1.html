@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Chapter</title>
+  <style>
+    :root {
+      --bg: linear-gradient(135deg,#f9d423,#ff4e50);
+      --card:#ffffff;
+      --text:#222;
+      --valid:#006400; /* dark green */
+    }
+    *{box-sizing:border-box;}
+    body {
+      margin:0;
+      font-family: Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      min-height:100vh;
+      background: var(--bg);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:20px;
+    }
+    .logo {
+      width:120px;
+      margin:20px 0;
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(-20px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    .title {
+      color:#000;
+      font-size:26px;
+      font-weight:800;
+      text-align:center;
+      margin:10px 0 20px;
+    }
+    #mobileDisplay {
+      margin-bottom:20px;
+      font-size:14px;
+      font-weight:500;
+      background:rgba(255,255,255,0.4);
+      padding:6px 12px;
+      border-radius:10px;
+      text-align:center;
+    }
+    .grid {
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+      width:100%;
+      max-width:480px;
+    }
+    .card {
+      background: var(--card);
+      border-radius:20px;
+      padding:20px;
+      text-align:center;
+      font-size:16px;
+      font-weight:600;
+      color:var(--text);
+      cursor:pointer;
+      box-shadow:0 10px 30px rgba(0,0,0,.12);
+      transition:transform .25s ease, box-shadow .25s ease;
+      position:relative;
+    }
+    .card:hover {
+      transform:translateY(-4px) scale(1.01);
+      box-shadow:0 16px 40px rgba(0,0,0,.18);
+    }
+    .tick {
+      position:absolute;
+      top:10px;
+      right:14px;
+      font-size:18px;
+      color:var(--valid);
+      font-weight:bold;
+    }
+    .back-btn {
+      position:fixed;
+      bottom:15px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:10px 18px;
+      border:none;
+      border-radius:10px;
+      background:#444;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+      transition:background 0.25s, transform 0.25s;
+      z-index:1000;
+    }
+    .back-btn:hover {
+      background:#222;
+      transform:translateX(-50%) scale(1.05);
+    }
+    /* Loading Spinner */
+    .loading {
+      margin-top:40px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      color:#fff;
+      font-weight:600;
+      font-size:15px;
+    }
+    .spinner {
+      border:4px solid rgba(255,255,255,0.3);
+      border-top:4px solid #fff;
+      border-radius:50%;
+      width:40px;
+      height:40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Logo -->
+  <img src="logo.png" alt="Logo" class="logo">
+
+  <div class="title">📘 Select a Chapter- Paper 1</div>
+  <div id="mobileDisplay"></div>
+
+  <!-- Loading screen -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div>Loading chapters...</div>
+  </div>
+
+  <div class="grid" id="sheetCards" style="display:none;"></div>
+
+  <button class="back-btn" onclick="location.href='ipopro.html'">⬅ Back</button>
+
+  <script>
+    const API_BASE = "https://script.google.com/macros/s/AKfycbzW5KjSBiOxgfX4ZU1D8ipaawdfVEpWNbxzUgLTS7Uh4O9rR4wpLzx1m-NDDU2BQ33A/exec";
+
+    const sheetCards = document.getElementById("sheetCards");
+    const mobileDisplay = document.getElementById("mobileDisplay");
+    const loading = document.getElementById("loading");
+
+    window.onload = async () => {
+      let mobile = localStorage.getItem("mobile");
+      mobileDisplay.innerText = mobile ? "📱 " + mobile : "📱 Not logged in";
+
+      try {
+        // ✅ Fetch attempted chapters for this mobile
+        let attemptsRes = await fetch(API_BASE + "?action=getAttempts&mobile=" + encodeURIComponent(mobile));
+        let attemptsData = await attemptsRes.json();
+        let attemptedChapters = attemptsData.chapters || [];
+
+        // ✅ Fetch all available chapters
+        let res = await fetch(API_BASE + "?action=listSheets");
+        let sheets = await res.json();
+
+        // 🔹 Filter out "Responses" sheet
+        sheets = sheets.filter(name => name !== "Responses");
+
+        // Hide loading, show grid
+        loading.style.display = "none";
+        sheetCards.style.display = "grid";
+
+        sheets.forEach(name => {
+          let card = document.createElement("div");
+          card.className = "card";
+          card.innerText = name;
+
+          // Add tick if attempted
+          if (attemptedChapters.includes(name)) {
+            let tick = document.createElement("span");
+            tick.className = "tick";
+            tick.innerText = "✔";
+            card.appendChild(tick);
+          }
+
+          card.onclick = () => {
+            window.location.href = "quiz.html?sheet=" + encodeURIComponent(name);
+          };
+
+          sheetCards.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error loading data", err);
+        loading.innerHTML = "<div style='color:#fff;'>⚠ Failed to load chapters</div>";
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPO Exam Practice Set Zone</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0; padding: 0;
+      background: linear-gradient(135deg, #6a11cb, #ff4e50);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    .logo {
+      width: 120px;
+      margin: 25px 0 10px;
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    header {
+      width: 100%;
+      text-align: center;
+      margin: 10px 0 25px;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      animation: fadeDown 1s ease-in-out;
+    }
+    @keyframes fadeDown {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    #mobileDisplay {
+      margin-top: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: rgba(255,255,255,0.2);
+      padding: 6px 14px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      width: 90%;
+      max-width: 460px;
+      margin-top: 15px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(14px);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      border: 2px solid rgba(255,255,255,0.25);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 0 20px rgba(255, 78, 80, 0.7),
+                  0 0 30px rgba(106, 17, 203, 0.7);
+      background: rgba(255, 255, 255, 0.25);
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+    .back-btn {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      color: #fff;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      transition: all 0.25s ease;
+    }
+    .back-btn:hover {
+      background: #000;
+      transform: translateX(-50%) scale(1.05);
+    }
+    @media (max-width: 600px) {
+      .card { font-size: 1.1rem; padding: 20px; }
+      header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Logo -->
+  <img src="logo.png" alt="Logo" class="logo">
+
+  <header>
+    <h1>IPO Exam Practice Set Zone</h1>
+    <div id="mobileDisplay"></div>
+  </header>
+
+  <div class="cards">
+    <div class="card" onclick="goToPage('ipop1.html')">📄 Paper 1</div>
+    <div class="card" onclick="goToPage('ipop2.html')">📄 Paper 2</div>
+    <div class="card" onclick="goToPage('ipop3.html')">📄 Paper 3</div>
+  </div>
+
+  <!-- Back button -->
+  <button class="back-btn" onclick="location.href='ipo.html'">⬅ Back</button>
+
+  <script>
+    // Show mobile number under title
+    window.onload = () => {
+      let mobile = localStorage.getItem("mobile");
+      if (mobile) {
+        document.getElementById("mobileDisplay").innerText = "📱 " + mobile;
+      } else {
+        document.getElementById("mobileDisplay").innerText = "📱 Not logged in";
+      }
+    };
+    function goToPage(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>

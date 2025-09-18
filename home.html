@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Splash - POAdda App</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(270deg, #ff512f, #dd2476, #24c6dc, #514a9d);
+      background-size: 800% 800%;
+      animation: gradientFlow 15s ease infinite;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      animation: fadeInDown 1.2s ease-out;
+    }
+
+    /* Logo with glowing pulse */
+    .logo-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-wrapper img {
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+      animation: zoomIn 1.5s ease-in-out;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulseGlow 3s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid #ffeb3b;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1.4rem;
+      box-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
+    }
+
+    p {
+      font-size: 1.1rem;
+      text-align: center;
+      max-width: 340px;
+      line-height: 1.5;
+      animation: fadeInUp 1.5s ease-out;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .version {
+      position: absolute;
+      bottom: 15px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      font-weight: 500;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Animations */
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.2; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    }
+
+    /* Floating bubbles for modern feel */
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      width: 20px;
+      height: 20px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      animation: rise 12s infinite ease-in;
+      backdrop-filter: blur(4px);
+    }
+    .bubble:nth-child(1) { left: 20%; width: 18px; height: 18px; animation-duration: 9s; }
+    .bubble:nth-child(2) { left: 40%; width: 28px; height: 28px; animation-duration: 13s; }
+    .bubble:nth-child(3) { left: 60%; width: 15px; height: 15px; animation-duration: 10s; }
+    .bubble:nth-child(4) { left: 80%; width: 22px; height: 22px; animation-duration: 12s; }
+
+    @keyframes rise {
+      0% { transform: translateY(0) scale(1); opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to POAdda App</h1>
+  <div class="logo-wrapper">
+    <img src="logo1.png" alt="POAdda Logo">
+  </div>
+  <div class="spinner"></div>
+  <p>For all your need in update and career in India Post</p>
+  <div class="version">v 1.2</div>
+
+  <!-- floating bubbles -->
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+
+  <script>
+    // Redirect after 4 seconds
+    setTimeout(() => {
+      window.location.href = "pre.html";
+    }, 4000);
+  </script>
+</body>
+</html>

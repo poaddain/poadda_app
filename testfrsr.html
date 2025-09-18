@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FR & SR Quiz</title>
+
+  <style>
+    :root{
+      --accent: #5dd3f3;
+      --accent-2: #6a8cff;
+      --green: #4ef08a;
+      --red: #ff5c5c;
+      --card-bg: rgba(255,255,255,0.04);
+    }
+    body{
+      margin:0;
+      font-family: Inter, sans-serif;
+      color:#e6eef8;
+      background:#0f1724;
+    }
+    body::before{
+      content:"";
+      position:fixed;inset:0;z-index:-1;
+      background:linear-gradient(120deg,#08122b,#0e1b33,#0e2241,#11243b,#08122b);
+      animation:bgShift 12s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift{0%{filter:hue-rotate(0deg)}50%{filter:hue-rotate(15deg)}100%{filter:hue-rotate(-10deg)}}
+    .app{max-width:900px;margin:20px auto;padding:15px;}
+    .card{
+      background:var(--card-bg);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px;
+      padding:18px;
+      backdrop-filter:blur(12px);
+      margin-bottom:15px;
+    }
+    .card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,0.35);transition:transform .25s,box-shadow .25s;}
+    .question-text{font-size:1.1rem;font-weight:600;}
+    .option{
+      padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);
+      margin:8px 0;cursor:pointer;transition:0.25s;
+    }
+    .option:hover{background:rgba(255,255,255,0.06);transform:scale(1.01);}
+    .option.selected{background:linear-gradient(90deg,#7bdcff,#6a8cff);color:#052033;}
+    .buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+    button{border:0;padding:10px 16px;border-radius:12px;font-weight:700;cursor:pointer;transition:0.18s;}
+    .btn-prev{background:#444;color:#fff;}
+    .btn-next{background:linear-gradient(90deg,#7bdcff,#6a8cff);}
+    .btn-submit{background:linear-gradient(90deg,#6ef184,#2ecc71);}
+    .btn-quit{background:linear-gradient(90deg,#ff9a9e,#ff6f6f);}
+    .progress-bar{height:10px;background:rgba(255,255,255,0.1);border-radius:6px;overflow:hidden;}
+    .progress{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+    .question-indicators{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+    .indicator{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.05);cursor:pointer;}
+    .indicator.current{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#052033;}
+    .indicator.answered{background:#00ff66 !important;color:#032015 !important;font-weight:700;}
+
+    /* Result / Scorecard */
+    #result-page h2{text-align:center;color:var(--accent);margin:0 0 8px 0;}
+    #score,#percentage,#accuracy{
+      font-size:1.05rem;
+      margin:6px 0;
+      text-align:center;
+    }
+    .score-card{
+      text-align:center;
+      font-size:1.1rem;
+      background:rgba(255,255,255,0.06);
+      padding:18px;
+      border-radius:16px;
+      backdrop-filter:blur(14px);
+      box-shadow:0 8px 30px rgba(0,0,0,0.45);
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    /* Answer card layout */
+    #answers-container{display:flex;flex-direction:column;gap:12px;}
+    .answer-card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:14px;
+      border:1px solid rgba(255,255,255,0.06);
+      box-shadow:0 6px 18px rgba(0,0,0,0.35);
+      transition:transform .18s,box-shadow .18s;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeInUp 0.45s forwards;
+    }
+    .answer-card:hover{transform:translateY(-6px) scale(1.005);box-shadow:0 16px 36px rgba(0,0,0,0.45);}
+    @keyframes fadeInUp{
+      to{opacity:1;transform:translateY(0);}
+    }
+    .q-head{font-weight:700;color:#dfefff;}
+    .a-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+    .a-col{flex:1 1 220px;min-width:180px;}
+    .correct-answer{color:var(--green);font-weight:700;display:inline-flex;align-items:center;gap:8px;}
+    .user-correct{color:var(--green);font-weight:700;display:inline-flex;align-items:center;gap:8px;}
+    .user-wrong{color:var(--red);font-weight:700;display:inline-flex;align-items:center;gap:8px;}
+    .meta-small{font-size:0.92rem;color:rgba(255,255,255,0.75);}
+    .answer-card.correct-card{border-left:4px solid var(--green);}
+    .answer-card.wrong-card{border-left:4px solid var(--red);}
+
+    .result-buttons{
+      display:flex;
+      gap:10px;
+      margin-top:15px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .go-chapters{background:linear-gradient(90deg,#5dd3f3,#6a8cff);border-radius:12px;padding:10px 16px;border:0;font-weight:700;cursor:pointer;}
+    .retry-btn{background:linear-gradient(90deg,#6ef184,#2ecc71);border-radius:12px;padding:10px 16px;border:0;font-weight:700;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Quiz Page -->
+    <div id="quiz-page">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-weight:700;">FR & SR Quiz</div>
+        <div class="timer" id="timer">Time: 00:00</div>
+      </header>
+
+      <div class="progress-bar"><div class="progress" id="progress-bar"></div></div>
+      <div class="question-indicators" id="question-indicators"></div>
+
+      <div class="card">
+        <div class="question-text" id="question-text">Loading...</div>
+        <div id="options-container"></div>
+        <div class="buttons">
+          <button class="btn-prev" id="prev-btn">Previous</button>
+          <button class="btn-next" id="next-btn">Next</button>
+          <button class="btn-submit" id="submit-btn">Submit</button>
+          <button class="btn-quit" id="quit-btn">Quit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Page -->
+    <div id="result-page" style="display:none;">
+      <div class="card score-card">
+        <h2>🎉 Quiz Completed!</h2>
+        <div id="score"></div>
+        <div id="percentage"></div>
+        <div id="accuracy"></div>
+      </div>
+
+      <div class="card" id="answers-container"></div>
+
+      <div class="result-buttons">
+        <button class="retry-btn" onclick="restartQuiz()">Retry</button>
+        <button class="go-chapters" onclick="location.href='chapters.html'">Go to Chapters</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {"question":"Training before appointment is not cosider as qualifying service in which case?","options":["MACP","Leave","Pension","Increment"],"correct":0},
+      {"question":"Among the following pay which is from the Consolidated fund of India/State or UTS?","options":["Fee","Honorarium","Foreign service pay","None of the them"],"correct":1},
+      {"question":"Amount of NPA (Non Practising Allowance) of Basic Pay","options":["30 Percentage","20 Percentage","25 Percentage","15 Percentage"],"correct":1},
+      {"question":"Classify the pay- when a Govt servant reinstat in his duty after fully exonerated from a penalty, the Govt Servant would be paid full pay for that period","options":["Special Pay","Personal Pay","Presumptive pay","Subsistent Grant"],"correct":2},
+      {"question":"Rule no. for medical certificate is required for appointment","options":["FR 7","FR 8","FR 9","FR 10"],"correct":3},
+      {"question":"For the new recruit what period is allowed for drawl of pays without medical certificate","options":["1 Month","2 Months","3 Months","6 Months"],"correct":1},
+      {"question":"Retention of Lien of post in general condition","options":["3 yrs","2 yrs","1 year","5 yrs"],"correct":1},
+      {"question":"Maximum period of retention of lien in case of deputation in developing countries in Asia, Africa & Latin America by concerned ministry","options":["3 yrs","2 yrs","1 year","5 yrs"],"correct":3},
+      {"question":"Pay & Allowance drawn from the post","options":["FR 10","FR 12","FR 15","FR 17"],"correct":3}
+    ];
+    const totalQuestions = questions.length;
+    const totalTime = totalQuestions * 90;
+
+    let currentQuestion = 0;
+    let userAnswers = Array(totalQuestions).fill(null);
+    let timeLeft = totalTime;
+    let timerInterval;
+
+    const quizPage=document.getElementById('quiz-page');
+    const resultPage=document.getElementById('result-page');
+    const questionText=document.getElementById('question-text');
+    const optionsContainer=document.getElementById('options-container');
+    const indicators=document.getElementById('question-indicators');
+    const progressBar=document.getElementById('progress-bar');
+    const timerElement=document.getElementById('timer');
+    const scoreElement=document.getElementById('score');
+    const percentageElement=document.getElementById('percentage');
+    const accuracyElement=document.getElementById('accuracy');
+    const answersContainer=document.getElementById('answers-container');
+    const prevBtn=document.getElementById('prev-btn');
+    const nextBtn=document.getElementById('next-btn');
+    const submitBtn=document.getElementById('submit-btn');
+    const quitBtn=document.getElementById('quit-btn');
+
+    function initQuiz(){
+      indicators.innerHTML="";
+      for(let i=0;i<totalQuestions;i++){
+        const d=document.createElement('div');
+        d.className="indicator";
+        d.textContent=i+1;
+        d.onclick=()=>navigateToQuestion(i);
+        indicators.appendChild(d);
+      }
+      startTimer();
+      loadQuestion(currentQuestion);
+    }
+    function startTimer(){
+      updateTimerDisplay();
+      timerInterval=setInterval(()=>{
+        timeLeft--;updateTimerDisplay();
+        if(timeLeft<=0){clearInterval(timerInterval);submitQuiz();}
+      },1000);
+    }
+    function updateTimerDisplay(){
+      const m=Math.floor(timeLeft/60),s=timeLeft%60;
+      timerElement.textContent=`Time: ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+    function loadQuestion(i){
+      document.querySelectorAll('.indicator').forEach((el,idx)=>{
+        el.classList.remove('current');
+        if(idx===i)el.classList.add('current');
+        if(userAnswers[idx]!=null)el.classList.add('answered');
+      });
+      progressBar.style.width=((i+1)/totalQuestions*100)+"%";
+      questionText.textContent=questions[i].question;
+      optionsContainer.innerHTML="";
+      questions[i].options.forEach((opt,j)=>{
+        const div=document.createElement('div');
+        div.className="option";div.textContent=opt;
+        if(userAnswers[i]===j)div.classList.add('selected');
+        div.onclick=()=>selectOption(j);
+        optionsContainer.appendChild(div);
+      });
+      prevBtn.disabled=i===0;
+      nextBtn.disabled=i===totalQuestions-1;
+    }
+    function selectOption(idx){
+      userAnswers[currentQuestion]=idx;
+      loadQuestion(currentQuestion);
+    }
+    function navigateToQuestion(i){
+      currentQuestion=i;
+      loadQuestion(currentQuestion);
+    }
+    nextBtn.onclick=()=>{if(currentQuestion<totalQuestions-1){currentQuestion++;loadQuestion(currentQuestion);}};
+    prevBtn.onclick=()=>{if(currentQuestion>0){currentQuestion--;loadQuestion(currentQuestion);}};
+    submitBtn.onclick=submitQuiz;
+
+    function submitQuiz(){
+      clearInterval(timerInterval);
+      let correct=0;
+      userAnswers.forEach((ans,i)=>{if(ans===questions[i].correct)correct++;});
+      const percent=((correct/totalQuestions)*100).toFixed(1);
+      const answered=totalQuestions-userAnswers.filter(a=>a==null).length;
+      const acc=answered>0?((correct/answered)*100).toFixed(1):0;
+      scoreElement.textContent=`Score: ${correct}/${totalQuestions}`;
+      percentageElement.textContent=`Percentage: ${percent}%`;
+      accuracyElement.textContent=`Accuracy: ${acc}%`;
+      answersContainer.innerHTML="";
+      questions.forEach((q,i)=>{
+        const card=document.createElement('div');
+        card.className="answer-card";
+        const userIdx=userAnswers[i];
+        const userText=(userIdx!=null)?q.options[userIdx]:"Skipped";
+        const correctText=q.options[q.correct];
+        const userIsCorrect=(userIdx===q.correct);
+        card.classList.add(userIsCorrect?'correct-card':'wrong-card');
+        card.style.animationDelay=(0.06*i)+"s";
+        const userIcon=userIsCorrect?'✔':'✎';
+        const userClass=userIsCorrect?'user-correct':'user-wrong';
+        card.innerHTML=`
+          <div class="q-head"><b>Q${i+1}:</b> ${q.question}</div>
+          <div class="a-row">
+            <div class="a-col">
+              <div class="meta-small">Correct</div>
+              <div class="correct-answer">✔ Correct: ${correctText}</div>
+            </div>
+            <div class="a-col">
+              <div class="meta-small">Your Answer</div>
+              <div class="${userClass}">${userIcon} Your: ${userText}</div>
+            </div>
+          </div>`;
+        answersContainer.appendChild(card);
+      });
+      quizPage.style.display="none";
+      resultPage.style.display="block";
+    }
+
+    function restartQuiz(){
+      clearInterval(timerInterval);
+      currentQuestion=0;
+      userAnswers=Array(totalQuestions).fill(null);
+      timeLeft=totalTime;
+      resultPage.style.display="none";
+      quizPage.style.display="block";
+      initQuiz();
+    }
+
+    // ✅ Quit button with confirmation
+    quitBtn.onclick=()=>{
+      if(confirm("Are you sure you want to quit the quiz?")){
+        location.href='chapters.html';
+      }
+    };
+
+    window.onload=initQuiz;
+  </script>
+</body>
+</html>

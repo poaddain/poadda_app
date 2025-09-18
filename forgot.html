@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #6a11cb, #2575fc, #ff7e5f, #feb47b);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      animation: rise 20s infinite ease-in;
+      backdrop-filter: blur(4px);
+    }
+    @keyframes rise {
+      0% { transform: translateY(0) scale(1); opacity: 0.7; }
+      100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+    }
+    .container {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 25px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      z-index: 1;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #fff;
+      text-align: center;
+      font-size: 1.8rem;
+    }
+    label {
+      font-weight: 600;
+      margin-top: 10px;
+      display: block;
+      color: #fff;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      outline: none;
+    }
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    option { color: #333; }
+    input:focus, select:focus { box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 25px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+      position: relative;
+    }
+    button:hover { transform: scale(1.05); }
+    button.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+    button.loading::after {
+      content: "  Retrieving...";
+      font-weight: normal;
+      font-size: 14px;
+    }
+    .links {
+      margin-top: 15px;
+      text-align: center;
+    }
+    .links a {
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+    .links a:hover { color: #ffd369; }
+    .notifier {
+      position: fixed;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-weight: bold;
+      opacity: 0;
+      transition: all 0.6s ease;
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+    }
+    .notifier.show { top: 20px; opacity: 1; }
+    .notifier.success { background: rgba(40,167,69,0.9); }
+    .notifier.warning { background: rgba(255,193,7,0.9); color: #000; }
+  </style>
+</head>
+<body>
+  <!-- Bubbles -->
+  <div class="bubble" style="left: 10%; animation-duration: 18s;"></div>
+  <div class="bubble" style="left: 30%; animation-duration: 22s;"></div>
+  <div class="bubble" style="left: 50%; animation-duration: 25s;"></div>
+  <div class="bubble" style="left: 70%; animation-duration: 20s;"></div>
+  <div class="bubble" style="left: 85%; animation-duration: 28s;"></div>
+
+  <div class="container">
+    <h2><i class="fa-solid fa-key"></i> Forgot Password</h2>
+    <form id="forgotForm">
+      <label><i class="fa-solid fa-phone"></i> Mobile No.</label>
+      <input type="text" name="mobile" maxlength="10" pattern="^[0-9]{10}$" placeholder="Enter 10 digit mobile" required>
+
+      <label><i class="fa-solid fa-graduation-cap"></i> Exam</label>
+      <select name="exam" required>
+        <option value="">Select your exam</option>
+        <option value="IPO">IPO</option>
+        <option value="AAO">AAO</option>
+        <option value="PA/SA">PA/SA</option>
+      </select>
+
+      <button type="submit" id="forgotBtn"><i class="fa-solid fa-search"></i> Retrieve Password</button>
+
+      <div class="links">
+        <a href="login.html">⬅ Back to Login</a>
+      </div>
+    </form>
+  </div>
+
+  <div id="notifier" class="notifier"></div>
+
+  <script>
+    const forgotURL = "https://script.google.com/macros/s/AKfycbxcp5wXF3RnA5pv0FTlX7Bkad6s4xmXuLY4WhQk3xz7WJhM4-2Mpzi-rygF6TLoOEos/exec"; 
+    const form = document.getElementById("forgotForm");
+    const notifier = document.getElementById("notifier");
+    const forgotBtn = document.getElementById("forgotBtn");
+
+    function showNotifier(message, type="success") {
+      notifier.textContent = message;
+      notifier.className = "notifier show " + type;
+      setTimeout(() => notifier.classList.remove("show"), 10000); // show longer so user can read password
+    }
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      forgotBtn.classList.add("loading");
+
+      try {
+        const res = await fetch(`${forgotURL}?action=forgot&mobile=${encodeURIComponent(data.mobile)}&exam=${encodeURIComponent(data.exam)}`);
+        const text = await res.text();
+        const result = JSON.parse(text);
+
+        if (result.status === "found") {
+          showNotifier("Your password is: " + result.password, "success");
+        } else {
+          showNotifier("❌ No record found for given details", "warning");
+        }
+      } catch (err) {
+        console.error(err);
+        showNotifier("Network error. Please try again.", "warning");
+      } finally {
+        forgotBtn.classList.remove("loading");
+      }
+    });
+  </script>
+</body>
+</html>

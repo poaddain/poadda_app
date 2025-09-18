@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPO Test Zone</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0; padding: 0;
+      background: linear-gradient(135deg, #ffb347, #ff6a6a);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin: 30px 0 20px 0;
+      position: relative;
+      width: 100%;
+    }
+    header img {
+      width: 120px;
+      height: auto;
+      animation: floatLogo 3s ease-in-out infinite;
+    }
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    /* Mobile number top-right */
+    #mobileDisplay {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #fff;
+      background: rgba(0,0,0,0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 90%;
+      max-width: 450px;
+      margin-top: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.9);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .card i {
+      font-size: 1.6rem;
+      color: #ff5722;
+    }
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .popup {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 25px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from {opacity:0; transform: scale(0.9);}
+      to {opacity:1; transform: scale(1);}
+    }
+    .popup h2 { margin-bottom: 20px; font-size: 1.4rem; }
+    .popup input {
+      width: 85%; padding: 12px; margin: 12px 0;
+      font-size: 1rem; border: none; border-radius: 12px;
+      text-align: center; outline: none;
+    }
+    .popup input:disabled {
+      background: rgba(255,255,255,0.3);
+      color: #000;
+      cursor: not-allowed;
+    }
+    .popup button {
+      padding: 12px 25px; margin: 8px 5px;
+      border: none; border-radius: 12px;
+      cursor: pointer; font-size: 1rem; transition: 0.2s ease;
+    }
+    .go-btn { background: #4caf50; color: white; display: none; }
+    .cancel-btn { background: #f44336; color: white; }
+    .subscribe-btn { background: #2196f3; color: white; margin-top: 10px; display: none; }
+    .popup button:hover { transform: scale(1.05); opacity: 0.9; }
+    .message { margin: 10px 0; font-size: 0.95rem; color: #ffe082; }
+    /* Back button */
+    .back-btn {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      color: #fff;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      transition: all 0.25s ease;
+    }
+    .back-btn:hover {
+      background: #000;
+      transform: translateX(-50%) scale(1.05);
+    }
+    @media (max-width: 600px) {
+      .card { font-size: 1.2rem; padding: 25px; }
+      .popup { padding: 20px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="Logo">
+    <div id="mobileDisplay"></div>
+  </header>
+
+  <div class="cards">
+    <div class="card" onclick="location.href='chapters.html'">
+      <i class="fas fa-book-open"></i> Free Trial Zone
+    </div>
+    <div class="card" onclick="openPopup()">
+      <i class="fas fa-crown"></i> Pro Members
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup">
+      <h2><i class="fas fa-crown"></i> Pro Member Login</h2>
+      <input type="number" id="mobileInput" placeholder="Enter 10-digit Mobile" disabled>
+      <br>
+      <button class="go-btn" id="goBtn" onclick="validatePro()">Go</button>
+      <button class="cancel-btn" onclick="closePopup()">Cancel</button>
+      <div class="message" id="message"></div>
+      <button class="subscribe-btn" id="subscribeBtn" onclick="location.href='payment.html'">
+        <i class="fas fa-credit-card"></i> Subscribe Pro
+      </button>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <button class="back-btn" onclick="location.href='ipo.html'">⬅ Back</button>
+
+  <script>
+    const popupOverlay = document.getElementById('popupOverlay');
+    const mobileInput = document.getElementById('mobileInput');
+    const goBtn = document.getElementById('goBtn');
+    const message = document.getElementById('message');
+    const subscribeBtn = document.getElementById('subscribeBtn');
+    const mobileDisplay = document.getElementById('mobileDisplay');
+
+    // Show mobile in top-right corner
+    window.onload = () => {
+      let mobile = localStorage.getItem("mobile");
+      if (mobile) {
+        mobileDisplay.innerText = "📱 " + mobile;
+      } else {
+        mobileDisplay.innerText = "📱 Not logged in";
+      }
+    };
+
+    function openPopup() {
+      let mobile = localStorage.getItem("mobile");
+      if (mobile) {
+        mobileInput.value = mobile;  // Pre-fill from corner
+        goBtn.style.display = "inline-block"; // Always show go button
+      } else {
+        mobileInput.value = "";
+        message.innerText = "⚠️ No mobile number found!";
+      }
+      popupOverlay.style.display = 'flex';
+    }
+
+    function closePopup() {
+      popupOverlay.style.display = 'none';
+      message.innerText = "";
+      subscribeBtn.style.display = "none";
+    }
+
+    async function validatePro() {
+      let mobile = mobileInput.value.trim();
+      message.innerText = "Validating...";
+      subscribeBtn.style.display = "none";
+
+      try {
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbzKYvWRcNs_11gRK-0viBCtmnZm6_C59UxZ27tsDizdpZxLHDL248T-bnUScXi3eVdh/exec?mobile=${mobile}`);
+        const data = await response.json(); 
+        if (!data.found) {
+          message.innerText = "No subscription is found, please subscribe.";
+          subscribeBtn.style.display = "inline-block";
+          return;
+        }
+        let today = new Date();
+        let validity = new Date(data.validity);
+        if (today <= validity) {
+          localStorage.setItem("mobile", mobile); // ✅ Ensure saved
+          window.location.href = "ipopro.html";
+        } else {
+          message.innerText = "Subscription expired, please subscribe again.";
+          subscribeBtn.style.display = "inline-block";
+        }
+      } catch (err) {
+        console.error(err);
+        message.innerText = "Error validating subscription.";
+      }
+    }
+  </script>
+</body>
+</html>

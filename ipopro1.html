@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPO Pro Exam</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    #userInfo { font-size: 1.2rem; margin-bottom: 20px; }
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      background: #ff9800;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body>
+  <h1>IPO Pro Exam</h1>
+  <div id="userInfo"></div>
+
+  <p>Welcome to the IPO Pro Exam. Complete your test and submit result.</p>
+  <button onclick="submitResult('IPO Exam', 25)">Submit Result</button>
+
+  <script>
+    // Show mobile
+    window.onload = () => {
+      let mobile = localStorage.getItem("mobile");
+      if (mobile) {
+        document.getElementById("userInfo").innerText = "Mobile: " + mobile;
+      } else {
+        document.getElementById("userInfo").innerText = "No mobile found, please login.";
+      }
+    };
+
+    // Submit to Google Sheet
+    async function submitResult(examName, marks) {
+      let mobile = localStorage.getItem("mobile") || "Unknown";
+      let date = new Date().toLocaleString("en-GB");
+
+      let data = { mobile: mobile, exam: examName, marks: marks, date: date };
+
+      try {
+        let res = await fetch("https://script.google.com/macros/s/AKfycbyMO7yZV6pfVJV_gK72mf7GxOVx8veC-gW3D9SkxQKFor2y_EA4msAwi9BG1qI9-lIecw/exec", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+        let text = await res.text();
+        alert(text);
+        window.location.href = "ipotest.html";
+      } catch (err) {
+        alert("Network error! Please try again.");
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

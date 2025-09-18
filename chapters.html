@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POADDA IPO Test Zone</title>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298, #1b2735);
+      background-size: 300% 300%;
+      animation: gradientBG 12s ease infinite;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 30px 15px;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      margin: 10px 0 5px;
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    h2 {
+      margin: 0 0 30px;
+      font-size: 1rem;
+      font-weight: 400;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* Narrow rectangular card */
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      min-height: 70px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      padding: 15px 20px;
+      transform: translateY(50px);
+      opacity: 0;
+      animation: slideUp 0.7s ease forwards;
+    }
+    .card:nth-child(1) { animation-delay: 0.2s; }
+    .card:nth-child(2) { animation-delay: 0.4s; }
+    .card:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes slideUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .card svg {
+      width: 28px;
+      height: 28px;
+      stroke-width: 2.4;
+      flex-shrink: 0;
+    }
+
+    .back-btn {
+      margin-top: 40px;
+      padding: 12px 22px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>POADDA IPO Test Zone (Free Zone)</h1>
+  <h2>Choose chapter to test your preparation</h2>
+
+  <div class="cards">
+    <div class="card" onclick="location.href='testfrsr.html'">
+      <i data-lucide="book"></i>
+      FR & SR Part 1
+    </div>
+    <div class="card" onclick="location.href='testit.html'">
+      <i data-lucide="scale"></i>
+      IT Act 2000
+    </div>
+    <div class="card" onclick="location.href='testprc.html'">
+      <i data-lucide="shield"></i>
+      Prevention of Corruption Act
+    </div>
+  </div>
+
+  <button class="back-btn" onclick="location.href='ipo.html'">⬅ Back</button>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
